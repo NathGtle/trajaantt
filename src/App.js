@@ -1,23 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useRef, useState } from "react";
+import "./App.css";
+
+// const url = "https://dummyjson.com/products/search?q="
 
 function App() {
+  const [search, setSearch] = useState("");
+  const [products, setProducts] = useState([]);
+
+  const lastcall = useRef(null);
+
+  // console.log(search);
+
+  // const onSubmit = useCallback((id) => {
+  //   fetch(`https://dummyjson.com/products/search?q=${id}`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setProducts(data.products);
+  //     });
+  // }, []);
+
+  // staleUpdate
+
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      fetch(`https://dummyjson.com/products/search?q=${search}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setProducts(data.products);
+        });
+    }, 1000);
+    return () => clearTimeout(debounce);
+  }, [search]);
+
+  console.log(products);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <input type="text" onChange={(e) => setSearch(e.target.value)} />
+      <p>----------------------------</p>
+      {products.length > 0 ? (
+        products.map((product) => {
+          return <p key={product.id}>{product.title}</p>;
+        })
+      ) : (
+        <p>No products found</p>
+      )}
     </div>
   );
 }
